@@ -2,7 +2,7 @@
 ### 📋 Agentic AI 3.0 Specialization | Krish Naik Academy
 
 **🎙️ Mentor:** Mayank Aggarwal
-**⏱️ Duration:** ~4.5 hours | **📅 Session:** Day 9 (26 July 2026)
+**⏱️ Duration:** ~4.5 hours | **📅 Session:** Day 9 (25 July 2026)
 
 ---
 
