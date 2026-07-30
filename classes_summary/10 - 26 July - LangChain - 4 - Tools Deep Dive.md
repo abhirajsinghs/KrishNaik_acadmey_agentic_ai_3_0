@@ -110,7 +110,7 @@ flowchart LR
 
 - 🔑 **The rule, explicitly revealed live:** *"These are actually reserved arguments — you cannot use `config` and `runtime`. Using these names will cause a runtime error."* `config` and `runtime` are reserved parameter names in LangChain — never use them as ordinary tool arguments.
 - This is exactly why the error appeared to come "out of nowhere" during the live demo — tool *definition* succeeds silently; the failure only shows up when the tool is actually called by an agent.
-- ✅ **Confirmed and wrapped up:** *"Config and runtime — they are resolved by LangChain... if you want to use config or runtime, please use some other name."*
+- ✅ **Confirmed and wrapped up:** *"Config and runtime — they are reserved by LangChain... if you want to use config or runtime, please use some other name."*
 
 ---
 
