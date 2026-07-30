@@ -7,6 +7,7 @@ It contains links for Mayank GPT (Chatbot for clarifying doubts), Github link, i
 - *Mastering Pydantic* - https://pydantic-with-mayank.netlify.app/
 - *Agents with pure python* - https://python-agents-with-mayank.netlify.app/
 - *AI Memory Lab* - https://context-with-mayank.netlify.app/
+- *Revision Ipynb, Assignment and Interview questions* - https://github.com/mayank953/Live-Class-2026/tree/main/Class%208%20-%20Langchain%20-%20Structured%20Output%20%26%20Tools/Assignment%20%26%20Questions
   
 ## Github repo
 https://github.com/mayank953/Live-Class-2026#
