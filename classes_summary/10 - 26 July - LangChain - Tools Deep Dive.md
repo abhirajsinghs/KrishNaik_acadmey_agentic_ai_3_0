@@ -2,7 +2,7 @@
 ### 📋 Agentic AI 3.0 Specialization | Krish Naik Academy
 
 **🎙️ Mentor:** Mayank Aggarwal
-**⏱️ Duration:** ~5+ hours | **📅 Session:** Day 10 (27 July 2026)
+**⏱️ Duration:** ~5+ hours | **📅 Session:** Day 10 (26 July 2026)
 
 ---
 
@@ -116,6 +116,28 @@ flowchart LR
 
 ## 🔗 Binding vs. Execution
 
+> **The setup:** working with a `ChatOpenAI` model (GPT-5-mini), Mayank asked the class directly — *"Once a tool has been bound to a model, do you think the model can ever call it itself?"* The answer, repeated since Day 1 of the course: **no — the AI can never call the tool itself.** Only an agent (or the developer's own code) can actually execute it.
+
+### 🧪 The Deliberate Setup
+Earlier in the session, when demonstrating `runtime`, Mayank intentionally left `runtime` **out** of the Pydantic `WeatherInput` schema passed to the tool — specifically so the class could see it fail: *"I have to just show you how we can have runtime. If I use it here, I'm saying to my tool that you'll get `WeatherInput` as the schema, but it's not having runtime. I was just trying to show you how it fails."*
+
+### 💬 Doubts Cleared Along the Way
+- **"Can a method take the whole `WeatherInput` object instead of individual fields?"** — Yes, but then the function body has to explicitly pull out each field via dot notation (`weather_input.location`, `weather_input.config`, etc.) rather than receiving them as separate named arguments.
+- **"Can `config` be used *anywhere* in the schema, even nested?"** — No. `config` cannot be used anywhere as an argument name, at any level.
+- **"Can more descriptive function names replace the need for a docstring?"** — Technically the tool will still work, but a docstring is still strongly recommended regardless of how descriptive the name is.
+- **"If `config`/`runtime` are reserved, why does this throw a *runtime* error instead of a *syntax* error at definition time?"** — Because LangChain doesn't know at definition time how the tool will be used. The exact same function might be reused with a completely different framework where `config`/`runtime` aren't reserved at all. Rather than blocking the tool from being defined, LangChain waits until execution — when it actually knows it's operating inside a LangChain agent — to raise the error. A function can even be handed to an agent directly, without the `@tool` decorator at all, and LangChain will still accept it; it simply can't warn about a `config`/`runtime` clash until the tool is actually run.
+
+### 🔬 The Live Demo: Binding Two Tools
+```python
+tools = [check_showtimes, book_seats]
+model_with_tools = model.bind_tools(tools)
+
+response = model_with_tools.invoke("Is Interstellar showing tonight, can you book two seats?")
+```
+
+- The response came back with **`content` completely empty** — and the actual instruction living inside `response.tool_calls`: the tool's `name` (`book_seats`), its `args` (`movie_title: "Interstellar"`, `seats: 2`, `preferred_row: "middle"`), plus a `config` value the model tried to pass automatically — a live, concrete reminder of exactly why `config` is off-limits as an argument name.
+- 🔑 **The point of the whole demo:** *"Will this ever be able to call the tool and make something happen for you? No. You want a complete harness around it — which is provided by an agent."*
+
 ```mermaid
 flowchart LR
     A["model + tools<br/>.bind_tools([...])"] --> B["🧠 Model + Tools<br/>('model with tools')"]
@@ -128,7 +150,19 @@ flowchart LR
     style F fill:#22c55e,color:#fff
 ```
 
-> *"Once the tool has been bound to the model, do you think the model can ever call it? No. The way your tool actually gets run is via an agent."* This diagram was explicitly saved into the shared class notes as a reference.
+> This exact diagram was drawn live and saved directly into the shared class notes as a permanent reference.
+
+### 🔁 Re-explained After the Break, for Anyone Still Unsure
+Enough learners asked to hear this again that Mayank repeated the whole demo from scratch after the break, using a fresh example: *"Is Interstellar showing tonight, can you book two seats?"*
+
+```python
+for tool_call in response.tool_calls:
+    print(tool_call["name"])
+    print(tool_call["args"])
+```
+
+- 🎯 **The misconception being corrected directly:** *"Many people think that once you bind a tool to a model, the tool gets called. From the very first class, I've been telling you — AI can never call the tool. An agent, or you, will call the tool. It will never happen any other way."*
+- Printing `response.tool_calls` after the re-run showed exactly the same shape as before: a tool name (e.g. `check_showtimes`) and its arguments, extracted from an otherwise empty `AIMessage` — reinforcing that **"model with tools" is a fundamentally different, more limited thing than "agent."** A model with tools can only ever *request* a tool call; only `create_agent()` closes the loop and actually executes it.
 
 ---
 
@@ -146,7 +180,7 @@ flowchart LR
     style E fill:#f59e0b,color:#fff
 ```
 
-> *"This was a very basic thing... one, 0 to 0.2 of the tool. Let me now take you a lot more ahead once we come back."* A 10-minute break followed this recap (**`01:15:49`–`01:25:54`**), before moving into advanced tool internals.
+> *"This was a very basic thing... 0 to 0.2 of the tool. Let me now take you a lot more ahead once we come back."* A short break followed this recap, before moving into advanced tool internals.
 
 ---
 
