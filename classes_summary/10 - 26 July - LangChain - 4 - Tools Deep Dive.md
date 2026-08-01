@@ -355,12 +355,32 @@ What ties all of these pieces together — deciding when to call a tool, running
 
 | Question | Answer |
 |---|---|
-| Is a tool genuinely *just* a function call? | Yes — genuinely, nothing more |
-| Does passing an `args_schema` cost more tokens? | Slightly, yes — but reliability matters more than saving 20–30 tokens if it avoids a failed/retried call |
-| Can `config`/`runtime` ever be used as tool argument names? | No — reserved by LangChain; will fail at runtime even though the tool defines without error |
-| Is `ToolStrategy` related to tool definitions? | No — `ToolStrategy` is purely for **structured output** (from the previous class), unrelated to defining tools themselves |
-| Do frameworks other than LangChain (CrewAI, LangGraph, etc.) matter as much as the concepts? | No — *"Framework is not important. Concept is important."* Once fundamentals are solid, switching frameworks is fast |
-| For an experienced non-CS professional (e.g. 9 years in a no-code platform like ServiceNow) — is deep DSA knowledge required to get hired? | Not heavily, except at large product-based companies (Amazon, Google-tier), which may still test DSA in early rounds regardless of experience; for most roles, strong applied AI-integration projects matter more |
+| OpenAI API says my requests are being stopped — do I need a credit card? | Yes — OpenAI requires at least $5 of prepaid credit before the API works, even for light use. Groq and OpenRouter remain better starting points for learning: free, rate-limited, no card required. |
+| How do I switch a working setup from one provider to another? | Just swap the model string (e.g. `groq:llama-3.3-70b` instead of `openai:gpt-5-mini`) and make sure the matching API key is available — nothing else needs to change. |
+| My `.env` key isn't loading even with `load_dotenv()` — why? | Almost always mundane: mismatched variable name, stray spaces, or the `.env` file not being read from the right working directory. |
+| Do `args_schema` field names need to match the function's parameter names? | Yes, exactly. If the schema says `seat_count` but the function says `seats`, they won't be linked — no auto-mapping happens. |
+| Does Python enforce types on its own, without Pydantic? | No. Plain Python doesn't check types at runtime — nothing stops a string being passed where an int was expected. Pydantic is what adds real enforcement. |
+| How is `args_schema` different from a hand-written JSON schema (from the vanilla Python days)? | Same goal, automated. `@tool(args_schema=YourModel)` extracts the same rich field-level detail and sends it to the model, without writing the schema by hand. |
+| Can nesting `config`/`runtime` inside a schema (instead of a bare parameter) get around the reserved-name restriction? | Not confirmed either way live — worth testing directly against the current LangChain version. |
+| Why is `config`/`runtime` a runtime error, not a compile-time one? | Beyond framework-portability reasons, Python itself has no compile-time type checking (unlike Java). Tools like MyPy/Pyright add that, but require restructuring how the code is written. |
+| Should I memorize every framework's reserved keywords? | No — check documentation when something unexpected happens. Different frameworks reserve different names for their own purposes; there's no universal list. |
+| What does `return_direct` actually do? | Sends a tool's raw output straight back to the user, skipping the model's final pass — used when a model rewording the output (e.g. a refund policy) could dangerously change its meaning. |
+| Can I use `return_direct` and still have the model double-check the output? | No — the two goals conflict. Verifying the output means putting the model back in the loop, reintroducing the hallucination risk `return_direct` exists to avoid. |
+| What's the difference between dynamic tool *calling* and dynamic tool *loading*? | Calling is already dynamic by default — the model decides which available tool to use per request. Loading is a separate concern: deciding, before the model is even called, which subset of many tools (e.g. 25–50) should be exposed at all. |
+| Does mentioning a user's VIP status in the system prompt automatically make VIP-only tools available? | No — a tool not included in the tool list isn't available no matter what the conversation says. Acting on that kind of state requires middleware (next class's topic). |
+| Is MCP an alternative to dynamic tool loading? | No — they're not comparable. MCP is just a packaged collection of tools/APIs (e.g. a "Gmail MCP" still just calls Gmail's send-email API internally). Loading is about which tools — MCP-based or otherwise — get exposed for a given request. |
+| Is `InMemoryStore` recoverable after a restart? | No — it's RAM-based; everything is lost when the process stops. Production systems use a persistent store (e.g. Postgres) instead. |
+| Does store performance/scaling depend on LangChain? | No — it's a database problem. Scaling characteristics belong to whatever storage technology sits underneath; LangChain just provides the read/write interface. |
+| Can an application use multiple separate memory stores? | Conceptually yes, though native support for switching between several wasn't confirmed live — worth checking current docs. Generally better not to split state unnecessarily. |
+| Is `InMemoryStore` only for saving conversation history? | No — it's general-purpose state/preference storage; conversation history is just one use case. |
+| Is using LangGraph's `InMemoryStore` inside LangChain "mixing frameworks"? | No — LangChain is built directly on top of LangGraph, so this is just using the same stack at a different layer. |
+| How should growing conversation context be managed? | No single correct technique — summarizing older messages, dropping old ones (the context-window mechanic from earlier), or a mix, chosen empirically based on results. Goal: maximum performance from minimum context, since cost scales with tokens. |
+| Does chaining a structured-output call directly (vs. two separate steps) add latency? | No meaningful difference — nothing is sent to the model until the final `.invoke()`, so combining steps is arguably cleaner with no real cost. |
+| How do I build a tool for internal services with no public API/MCP access (e.g. behind a VPN)? | A tool is just an API. If you can call it, you can wrap it — nothing more exotic is required; the agent just keeps calling it as needed. |
+| Why does my AI-generated code look different/better than a beginner's, using the same tool? | AI coding assistants only write as well as the prompt and context they're given — which depends on how well you understand the underlying concepts (Pydantic validation, tool strategy, dynamic loading, etc.). Understanding fundamentals is what makes the assistant a multiplier. |
+| How do I stay current in such a fast-moving field? | Fundamentals first — strong basics make new tools fast to evaluate. Blogs/news help with awareness, but aren't a substitute for solid basics. |
+| Do I need to become an expert in every cloud/framework a job posting mentions? | Not necessarily — ecosystems differ in detail, not underlying philosophy. Going deep on one (LangChain, or one cloud provider) transfers well to the others. |
+| Is model choice (e.g. GPT vs. Gemini) for a task a one-time decision? | No — comparing candidate models is standard, ongoing practice before finalizing any production choice. |
 
 ---
 
