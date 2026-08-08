@@ -20,5 +20,5 @@ https://github.com/mayank953/Live-Class-2026#
 
 # Useful Repos or Projects from students
 - *End-to-End Production-Grade LLM Serving with vLLM on Azure AKS* by Sikha Singh  : https://youtu.be/EyXzfnAxCdA?si=oOhAYmH52kdKf6Vu
-- *LangChain Learning Repo* by Shivam : https://github.com/pasrichashivam/langchain-learning
+- *LangChain Learning Repo* by Shivam Pasricha : https://github.com/pasrichashivam/langchain-learning
 - *Python-based AI agents built with FastAPI and LangChain* by Ankit Sharma: https://github.com/sharmankit23/agent-repo
