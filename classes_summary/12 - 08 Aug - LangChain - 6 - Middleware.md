@@ -10,6 +10,7 @@
 - 🎯 **Today's scope:** a full, deep pass through **middleware** — starting with why it's needed, then working through every major built-in middleware LangChain ships, before moving to custom middleware in the next session.
 - 📖 A reminder that the course has now spent roughly three weeks inside LangChain specifically — deliberately, so that every other framework afterward feels easy by comparison.
 
+#### Collab Notebook to follow: https://colab.research.google.com/drive/1Qt9uU2HhDvtFTWwbbFBYxK86jJypv1w_?usp=sharing
 ---
 
 ## 🎛️ Why Middleware Exists
