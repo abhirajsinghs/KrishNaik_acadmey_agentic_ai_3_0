@@ -2,6 +2,9 @@
 https://bugs-sleep-6uj.craft.me/agentic3
 
 It contains links for Mayank GPT (Chatbot for clarifying doubts), Github link, instructions, collab links and notes from the class. 
+  
+## Github repo
+https://github.com/mayank953/Live-Class-2026#
 
 ## Detailed notes on specific topics:
 - *Mastering Pydantic* - https://pydantic-with-mayank.netlify.app
@@ -10,9 +13,6 @@ It contains links for Mayank GPT (Chatbot for clarifying doubts), Github link, i
 - *AI Memory Lab* - https://context-with-mayank.netlify.app/
 - *Revision Ipynb, Assignment and Interview questions* - https://github.com/mayank953/Live-Class-2026/tree/main/Class%208%20-%20Langchain%20-%20Structured%20Output%20%26%20Tools/Assignment%20%26%20Questions
 - *Transformer Explainer* - https://poloclub.github.io/transformer-explainer/
-  
-## Github repo
-https://github.com/mayank953/Live-Class-2026#
 
 # Recordings of sessions
 - Step 1: https://learn.krishnaikacademy.com/web/courses
