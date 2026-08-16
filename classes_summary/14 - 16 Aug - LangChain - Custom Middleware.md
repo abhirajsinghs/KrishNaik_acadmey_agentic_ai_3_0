@@ -14,8 +14,7 @@
 
 ---
 
-Collab [Notebook](https://colab.research.google.com/drive/1CpnGhWhGG4r8NCIoh0WEmcPEVb6KJ2TH?usp=sharing
-https://colab.research.google.com/drive/1CpnGhWhGG4r8NCIoh0WEmcPEVb6KJ2TH?usp=sharing) 
+**🪝 Follow Collab** [Notebook](https://colab.research.google.com/drive/1CpnGhWhGG4r8NCIoh0WEmcPEVb6KJ2TH?usp=sharing) **for this session.**
 
 ## 🐚 Shell Tool Middleware — Building Your Own "Claude Code"
 
