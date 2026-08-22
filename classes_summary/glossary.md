@@ -9,6 +9,7 @@ use your browser's find-in-page (Ctrl/Cmd+F) to jump straight to a term.
 
 **Jump to:** [A](#a) · [B](#b) · [C](#c) · [D](#d) · [E](#e) · [F](#f) · [G](#g) · [H](#h) · [I](#i) · [J](#j) · [K](#k) · [L](#l) · [M](#m) · [N](#n) · [O](#o) · [P](#p) · [R](#r) · [S](#s) · [T](#t) · [U](#u) · [V](#v) · [W](#w)
 
+#### [Click here](https://claude.ai/code/artifact/39dbab2b-ca49-4284-bd01-73d729ae0686) to view this in a nice looking UI with search option.
 ---
 
 ## A
