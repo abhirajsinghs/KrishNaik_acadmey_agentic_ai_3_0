@@ -12,6 +12,8 @@
 - 🗺️ **The roadmap was laid out clearly:** two quick topics — **Runtime** and **Human-in-the-Loop** — before a genuine deep-dive detour into **MCP** (minimum 3 classes, covering MCP architecture, building a client and server from scratch, and publishing to the cloud), followed by a full project on **GCP**, then **multi-agent** systems, then **LangGraph**.
 - 🎯 The philosophy behind the MCP detour: rather than rushing to "use" MCP the LangChain way, understanding it in depth, independent of any framework, makes every future framework's version of it trivial to pick up — the same approach applied to LangChain itself from Day 1.
 
+Click [here](https://colab.research.google.com/drive/1dFuLlELzyS2NDIBgeVOowrqGJGFPERSL?usp=sharing#scrollTo=8LAN_6zxY_9V) to find the Collab notebook to follow along the session.
+
 ---
 
 ## 🔁 Quick Recap: Agent State
