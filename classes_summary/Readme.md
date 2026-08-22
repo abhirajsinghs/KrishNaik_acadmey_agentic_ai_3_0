@@ -25,3 +25,4 @@ https://github.com/mayank953/Live-Class-2026#
 - *Python-based AI agents built with FastAPI and LangChain* by Ankit Sharma: https://github.com/sharmankit23/agent-repo
 - *Agentic AI for patient administration and care coordination* by Chetan Pande (Won 1st place in AgentCare Hackathon) :  https://github.com/chetangpande-ai/AgentCare-Build-Challange-Hackathon-2026. YouTube: https://www.youtube.com/watch?v=dJLSfw1R5CE
 - *Upskill Planner (AI based course recommendation for learners)* by Chetan Pande (Won 4th place in SmartReco Hackathon) : https://github.com/chetangpande-ai/SmartReco. YouTube: https://www.youtube.com/watch?v=GbDVMFf1BFA&t=2s
+- *AI news portal* by Jayant: https://www.newsagentai.publicvm.com/search
