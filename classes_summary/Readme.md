@@ -10,6 +10,7 @@ https://github.com/mayank953/Live-Class-2026#
 - *Mastering Pydantic* - https://pydantic-with-mayank.netlify.app
 - *AI Terms* - https://ai-terms-with-mayank.netlify.app
 - *Agents with pure python* - https://python-agents-with-mayank.netlify.app/
+- *Claude & AI* - https://ai-automation-with-mayank.netlify.app/#home
 - *AI Memory Lab* - https://context-with-mayank.netlify.app/
 - *Revision Ipynb, Assignment and Interview questions* - https://github.com/mayank953/Live-Class-2026/tree/main/Class%208%20-%20Langchain%20-%20Structured%20Output%20%26%20Tools/Assignment%20%26%20Questions
 - *Transformer Explainer* - https://poloclub.github.io/transformer-explainer/
