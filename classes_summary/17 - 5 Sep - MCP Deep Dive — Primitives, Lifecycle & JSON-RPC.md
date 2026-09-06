@@ -8,9 +8,18 @@
 
 ## 📰 Quick Updates
 
+- 🏠 There had been no class the previous weekend due to a personal emergency at home, and Mayank was teaching this session while recovering from a throat infection — he pushed through with a shorter, slightly slower-paced session as a result.
 - 📚 All notes, code, and a class summary continue to be updated on GitHub, alongside a dedicated revision notebook for MCP created specifically to consolidate everything covered so far.
 - 🎯 **Today's scope:** a full recap of MCP fundamentals, followed by genuinely new material — MCP Primitives, the MCP Lifecycle, and a deep dive into JSON-RPC as the protocol underneath it all.
 - 🧭 The philosophy behind spending this much time on MCP was restated plainly: understanding it this deeply is what separates someone who can *use* an MCP connector from someone who can walk into a Google- or Amazon-level interview and explain how to *build* one that scales to millions of users.
+
+---
+## Resources for the session
+- https://ai-automation-with-mayank.netlify.app/#mcp
+- https://mcp-lifecycle.netlify.app/
+- https://mcp-lifecycle-simulator.netlify.app/
+- https://github.com/mayank953/Live-Class-2026/tree/main/Complete%20MCP
+- https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro
 
 ---
 
@@ -40,21 +49,72 @@ sequenceDiagram
 
 A **host** (Claude Desktop, VS Code, Cursor, Codex, any chatbot) never talks to a server directly — it can't, because they don't speak the same language. Instead, the host spins up a dedicated **client** for each server it needs to reach, and it's the client and server that actually communicate, in a shared language covered in depth later in this session.
 
-**One rule worth being precise about:** each **client** connects to exactly one server — a single client is never shared across multiple servers. If a host needs to reach several servers, it spins up a separate client for each one.
+### Seeing It Run: A Real, Minimal Server
 
-The reverse direction is more nuanced than "always one-to-one," and it's worth getting right since the official documentation is explicit about it: whether a *server* serves only one client or many depends on its transport. A **local server** (running via STDIO, like a filesystem or Apple Notes server spawned as a local process) typically serves just a single client. A **remote server** (running via HTTP — think a hosted Gmail or Slack MCP server) is generally designed to serve **many clients at once**, since it needs to support many different users connecting simultaneously. So "one client per server" always holds; "one server per client" only holds for local, STDIO-based servers.
+The accompanying course notebooks build this from actual working code rather than diagrams alone — a tiny "warm-up" MCP server, built with the `fastmcp` library:
+
+```bash
+uv init mcp-warmup && cd mcp-warmup
+uv add fastmcp
+```
+
+```python
+from fastmcp import FastMCP
+
+mcp = FastMCP("Warm-Up Server")
+
+@mcp.tool
+def greet(name: str) -> str:
+    """Greet someone by name."""
+    return f"Hello, {name}! Welcome to MCP."
+
+@mcp.tool
+def add(a: int, b: int) -> int:
+    """Add two numbers together."""
+    return a + b
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+Running `uv run fastmcp dev server.py` opens **MCP Inspector** (`http://127.0.0.1:6274`) — a browser tool that connects to any MCP server and lets you try its capabilities directly, with no AI application involved at all. Calling `greet` and `add` from Inspector's Tools tab confirms something worth noticing: the description shown for each tool is exactly the Python docstring written above it — generated automatically, never typed twice.
+
+In this setup, **Inspector plays the role of both host and client** (it's the interface a person interacts with, and it opens the actual connection), while `server.py` is the server. The instant Inspector launches and connects, that handshake **is** a client doing its job.
+
+### The One-to-One Relationship, Confirmed Against the Spec
+
+**Each client connects to exactly one server** — a single client is never shared across multiple servers. If a host needs to reach several servers, it spins up a separate client for each one, each with its own dedicated, private connection:
+
+```mermaid
+flowchart TB
+    Host["Host (AI Application)"] --> C1[Client 1]
+    Host --> C2[Client 2]
+    Host --> C3[Client 3]
+    C1 -->|dedicated connection| S1[(Server A)]
+    C2 -->|dedicated connection| S2[(Server B)]
+    C3 -->|dedicated connection| S3[(Server C)]
+```
+
+The reverse direction is more nuanced than "always one-to-one" — and the accompanying course notebook quotes the official MCP documentation on this directly:
+
+> *"Each MCP client maintains a dedicated, 1:1 connection with its corresponding MCP server. Local servers typically serve a single client, whereas remote servers typically serve many clients at once."* — Model Context Protocol official documentation
+
+So "one client per server" always holds; "one server per client" only holds for local, STDIO-based servers — a remote server (a hosted Gmail or Slack MCP server, for example) is generally designed to serve many clients at once.
 
 ### Benefits of This One-to-One Design
 
-- **Scalability** — a host isn't stuck managing one giant multi-server connection; each connection scales independently.
-- **Parallelism** — asking an assistant to "check my calendar *and* email my manager" can genuinely happen in parallel, since each server has its own dedicated client handling it.
-- **Security through decoupling** — if one client-server connection is compromised, the others are entirely unaffected, and each connection can carry its own separate authorization (Gmail via OAuth, GitHub via an API key, and so on).
+Four distinct reasons this design beats one shared connection to every server:
+
+- **Decoupling** — since each client only ever talks to one server, changing or updating how one server works never requires touching how the host talks to any other server. The connections are entirely independent.
+- **Safety** — a crash or serious bug in one server's connection stays contained to that one connection. This is provable directly: with `server.py` running, killing it (Ctrl+C) doesn't crash or freeze Inspector — it simply shows that one connection as closed. Four other live connections, had they existed, would be completely unaffected.
+- **Scalability** — if one particular server suddenly needs to handle much heavier use, that growth is entirely local to that one client-server pair; none of the host's other connections need to change to accommodate it.
+- **Parallelism** — a host with three live connections can talk to all three servers at the same time, rather than being forced to wait for one slow server before even starting the next. A shared connection would force them to effectively take turns.
 
 ---
 
 ## 🧩 MCP Primitives: What a Server Can Actually Offer
 
-A server's capabilities all fall into exactly three categories, referred to as **primitives**:
+A server's capabilities all fall into exactly three categories, referred to as **primitives**. A useful way to hold them apart: picture a smart-home gadget on a universal remote — something it *does* when a button is pressed (a tool), something you can just *glance at* like a status display (a resource), and a *suggested routine* built in ahead of time, like a "movie night" preset (a prompt).
 
 ```mermaid
 flowchart TD
@@ -67,9 +127,9 @@ flowchart TD
     style P fill:#22c55e,color:#fff
 ```
 
-- **Tools** are actions — something the AI asks the server to *do*, like sending an email or creating a GitHub issue.
-- **Resources** are read-only, near-static data sources — a GitHub repo's README, a database's schema file, or (from MCP's own official travel-planning example) a passport PDF or visa checklist. The distinction that matters: a resource is never something that changes what's happening; it's something to look at for context.
-- **Prompts** are predefined, reusable templates that help the AI perform a task *well*, not just perform it. The GitHub-issue example made this concrete: a bare `create_issue` tool call can produce a thin, low-detail issue — a **prompt** can instead guide the AI to gather a title, description, and reproduction steps first, consistently, every time. As another example: a plain email tool has no opinion on tone, but separate prompts could exist for "email to my manager," "email to a client," or "email to a vendor abroad" — each shaping the same underlying tool differently.
+- **Tools** are actions — something the AI asks the server to *do*, like sending an email or creating a GitHub issue. This is the one primitive where the AI itself decides to act; every other primitive is initiated by someone — or something — else first. Without a tool, an AI can describe in perfect detail what sending an email would involve; with one, it can actually send it.
+- **Resources** are read-only, near-static data sources — a GitHub repo's README, a database's schema file, a team's style guide sitting in Google Drive, or (from MCP's own official travel-planning example) a passport PDF or visa checklist. Notably, it's typically the *application*, not the model itself, that decides to read a resource and feed its content in as context. The distinction that matters: a resource never changes anything; it's something to look at. Resources solve a real, easy-to-miss problem — without one shared resource, every client needing the same reference data would hard-code its own copy, and those copies would quietly drift apart over time. A single resource, read fresh by everyone who needs it, never has that problem.
+- **Prompts** are predefined, reusable templates that help the AI perform a task *well*, not just perform it — closer to a form with blank fields than to data or an action. The GitHub-issue example made this concrete: a bare `create_issue` tool call can produce a thin, low-detail issue — a **prompt** can instead guide the AI to gather a title, description, and reproduction steps first, consistently, every time. Nothing about the underlying model changes when a prompt is introduced; only the presence of a form does — and because that structure lives once on the server, every application connecting to it produces consistently structured results, rather than each one separately (and differently) reinventing the same template.
 
 A pointed clarification that came up more than once: **resources and prompts are optional, not mandatory.** GitHub's own official MCP server, for instance, ships tools only — no resources or prompts at all — and that's a completely valid, common design.
 
@@ -84,6 +144,39 @@ Each primitive exposes its own small set of functions a client calls to interact
 | **Prompts** | `list`, `get` | `list` discovers available prompt templates; `get` retrieves a specific one |
 
 The moment a client connects to a server, it calls the relevant `list` functions first — this is how a host becomes aware of everything a server can offer before ever using any of it.
+
+### All Three, in Real Code
+
+The genuinely surprising part, proven directly in the course notebooks: starting from the tools-only warm-up server above, adding a real resource and a real prompt takes exactly **two more decorators** — nothing more elaborate than that.
+
+```python
+@mcp.resource("file://server-notes")
+def server_notes() -> str:
+    """Read-only notes about this server, straight from a local file."""
+    with open("server-notes.txt") as f:
+        return f.read()
+
+@mcp.prompt
+def structured_escalation(issue_summary: str, what_was_tried: str, customer_sentiment: str) -> str:
+    """Guides the AI to log a customer escalation with every required field, in order."""
+    return f"""Log this customer escalation with the following structure:
+Issue Summary: {issue_summary}
+What Was Already Tried: {what_was_tried}
+Customer Sentiment: {customer_sentiment}
+Recommended Next Action: [determine this from the details above]
+"""
+```
+
+Reopening MCP Inspector against the updated server confirms all three primitives live side by side: `greet` and `add` still sit under **Tools**, `file://server-notes` now appears under **Resources** and returns the real file's content, and `structured_escalation` now appears under **Prompts**, asking for exactly the three fields defined above. Filling that prompt in produces a consistently structured escalation record every time:
+
+```
+Issue Summary: Order #4521 arrived damaged
+What Was Already Tried: Customer emailed support once, no reply in 3 days
+Customer Sentiment: Frustrated, considering a refund request
+Recommended Next Action: Escalate to logistics team, offer expedited replacement
+```
+
+Most tutorials stop at tools because tools are the easiest thing to demo — the honest takeaway from building all three is that resources and prompts are just as easy to add; they simply get skipped more often.
 
 ---
 
@@ -211,7 +304,8 @@ Running out of time before covering everything planned, the remaining pieces —
 
 - **MCP exists to solve an integration problem, not to add AI capability.** Before it, connecting an AI host to every outside application meant custom, one-off integrations for each pairing. MCP standardizes that connection so any compliant host can talk to any compliant server.
 - **Host → Client → Server, always in that order.** A host never talks to a server directly — it always goes through a dedicated client, because host and server don't share a language on their own.
-- **Client-to-server is strictly one-to-one; server-to-client is not.** A client only ever connects to one server. Whether a server serves one client or many depends on transport: local STDIO servers typically serve a single client, but remote HTTP servers (like a hosted Gmail MCP server) are built to serve many clients at once.
+- **Client-to-server is strictly one-to-one; server-to-client is not.** A client only ever connects to one server. Whether a server serves one client or many depends on transport: local STDIO servers typically serve a single client, but remote HTTP servers (like a hosted Gmail MCP server) are built to serve many clients at once — confirmed directly against the official MCP documentation.
+- **Two decorators are the entire distance between a tools-only server and one offering all three primitives** (`@mcp.resource` and `@mcp.prompt`, on top of `@mcp.tool`) — resources and prompts are just as easy to build as tools; they're just demoed less often.
 - **Service providers build servers; host developers build clients.** Gmail's team would build and own a Gmail MCP server; it's Anthropic (or whoever owns the host) that builds the client/connector logic that lets their application talk to it.
 - **The three primitives are Tools, Resources, and Prompts** — actions, static reference data, and reusable templates for doing a task well, respectively. Only tools are effectively required; resources and prompts are genuinely optional (GitHub's official MCP server ships tools only).
 - **Every primitive is discovered before it's used**, via its own `list` function (`tools/list`, `resources/list`, `prompts/list`) — this is how a client learns what a server offers before ever calling anything.
@@ -230,6 +324,9 @@ Running out of time before covering everything planned, the remaining pieces —
 ## ✅ Action Items After Class 16
 
 - [ ] 🏗️ Re-draw the host → client → server flow from memory, including where the one-to-one relationship applies
+- [ ] 🛠️ Build the real warm-up FastMCP server yourself (`greet` + `add`), run it with `uv run fastmcp dev server.py`, and confirm both tools work in MCP Inspector
+- [ ] ➕ Add a real `@mcp.resource` and a real `@mcp.prompt` to that same server, and confirm all three primitives show up correctly in Inspector
+- [ ] 💥 Prove the "safety" benefit yourself — kill the running server with Ctrl+C while Inspector is connected, and observe that it fails contained rather than crashing anything else
 - [ ] 🧩 List, for a service you use daily (e.g. your own company's internal tool), what would qualify as a tool, a resource, and a prompt if it were exposed as an MCP server
 - [ ] 📖 Read through an actual MCP server's published tool list (e.g. GitHub's or Gmail's official MCP server) and confirm whether it includes resources/prompts or tools only
 - [ ] 🔍 Find and open your own Claude Desktop or equivalent host's MCP log file, and try to identify the three initialization-handshake messages in a real log
@@ -239,4 +336,4 @@ Running out of time before covering everything planned, the remaining pieces —
 
 ---
 
-*📝 Notes compiled from the full Class 16 transcript — "MCP Deep Dive: Primitives, Lifecycle & JSON-RPC," Agentic AI 3.0 Specialization, Krish Naik Academy.*
+*📝 Notes compiled from the full Class 16 transcript and the accompanying `MCP Architecture` and `MCP Primitives` course notebooks — "MCP Deep Dive: Primitives, Lifecycle & JSON-RPC," Agentic AI 3.0 Specialization, Krish Naik Academy.*
