@@ -19,6 +19,13 @@
 Before going further, the class briefly revisited where things stood: the client's role, the three primitives (tools, resources, prompts), and the initialization handshake — including the real JSON-RPC messages pulled directly from Claude Desktop's own logs, showing the exact request/response pair that establishes a connection. With that foundation in place, today picked up with the second half of the initialization phase: capability negotiation.
 
 ---
+## Resources for the session
+- https://ai-automation-with-mayank.netlify.app/#mcp
+- https://mcp-lifecycle.netlify.app/
+- https://mcp-lifecycle-simulator.netlify.app/
+- https://github.com/mayank953/Live-Class-2026/tree/main/Complete%20MCP
+- https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro
+---
 
 ## 🤝 Capability Negotiation, Completed
 
