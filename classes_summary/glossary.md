@@ -1,7 +1,7 @@
 # Glossary — Agentic AI 3.0 (Krish Naik Academy)
 
 A searchable, alphabetical glossary of every term and concept introduced across
-the [`classes_summary`](https://github.com/jakhmoladp/KrishNaik_acadmey_agentic_ai_3_0/tree/main/classes_summary) class notes (Class 0 – Class 14).
+the [`classes_summary`](https://github.com/jakhmoladp/KrishNaik_acadmey_agentic_ai_3_0/tree/main/classes_summary) class notes.
 Every entry links straight to the exact line in the source class file where the term is introduced or explained —
 use your browser's find-in-page (Ctrl/Cmd+F) to jump straight to a term.
 
